@@ -5,7 +5,7 @@ import {mutate} from "swr";
 
 
 const saveDrone = async (jwt, d) => {
-    let res = await fetch("http://91.107.125.237:8001/drone/create", {
+    let res = await fetch("https://dronepost.m41den.com/api/drone/create", {
         method: "POST",
         headers: {
             "Content-Type": "application/json",
@@ -22,7 +22,7 @@ const saveDrone = async (jwt, d) => {
 }
 
 const updateDrone = async (jwt, d) => {
-    let res = await fetch("http://91.107.125.237:8001/drone/change", {
+    let res = await fetch("https://dronepost.m41den.com/api/drone/change", {
         method: "POST",
         headers: {
             "Content-Type": "application/json",

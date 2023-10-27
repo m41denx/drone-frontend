@@ -12,7 +12,7 @@ import {toast, Toaster} from "react-hot-toast";
 
 const deleteDrones = async (jwt, drones) => {
     drones.forEach((d)=> {
-        fetch('http://91.107.125.237:8001/drone/delete', {
+        fetch('https://dronepost.m41den.com/api/drone/delete', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -30,7 +30,7 @@ const deleteDrones = async (jwt, drones) => {
 }
 
 const fetchDrones = async (jwt) => {
-    return await fetch('http://91.107.125.237:8001/drone/all',
+    return await fetch('https://dronepost.m41den.com/api/drone/all',
         {headers:{'Authorization': `Bearer ${jwt}`}}).then(r=>r.json())
 }
 
@@ -71,7 +71,7 @@ export default function AdminPage(props) {
                 setIsModalOpen("edit")
             }
         }
-        fetch('http://91.107.125.237:8001/state/gets/'+d.serial_number, {
+        fetch('https://dronepost.m41den.com/api/state/gets/'+d.serial_number, {
             headers: {
                 'Content-Type': 'application/json',
                 'Authorization': `Bearer ${props.jwt}`

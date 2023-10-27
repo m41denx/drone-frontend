@@ -23,7 +23,7 @@ export default function AuthModal(props) {
                 remember: true,
             }}
             onFinish={async (d)=>{
-                const data = await fetch('http://91.107.125.237:8000/admin/login', {
+                const data = await fetch('https://dronepost.m41den.com/auth/admin/login', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json'
