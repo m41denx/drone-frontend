@@ -7,6 +7,7 @@ import {faPen, faTrash} from "@fortawesome/free-solid-svg-icons";
 import DroneForm from "@/components/DroneForm";
 import {YMaps, Map as YMap, GeolocationControl, Placemark} from "@pbe/react-yandex-maps";
 import useSWR from "swr";
+import {toast, Toaster} from "react-hot-toast";
 
 
 const deleteDrones = async (jwt, drones) => {
@@ -18,6 +19,12 @@ const deleteDrones = async (jwt, drones) => {
                 'Authorization': `Bearer ${jwt}`
             },
             body: JSON.stringify({serial_number: d.serial_number})
+        }).then(r=>{
+            if (r.status!==200 && r.status!==201) {
+                toast.error(`Не удалось удалить ${d.serial_number}`)
+            }else{
+                toast.success(`${d.serial_number} удален`)
+            }
         })
     })
 }
@@ -71,7 +78,9 @@ export default function AdminPage(props) {
             }
         }).then(r=>r.json()).then(r=>{
             l.state = r
-        })
+            l.longitude = parseFloat(r.longitude)
+            l.latitude = parseFloat(r.latitude)
+        }).catch(()=>{})
         pomdata.push(l)
     })
 
@@ -143,6 +152,7 @@ export default function AdminPage(props) {
 
     return <YMaps>
         <NavBar />
+        <Toaster />
         <div className="flex m-8 gap-8">
             <AdminNav page={page} setPage={setPage} />
             {page==="drones"&&<>
@@ -166,7 +176,7 @@ export default function AdminPage(props) {
                 </Modal>
             </>}
 
-            {page==="map"&&<MapView />}
+            {page==="map"&&<MapView dots={pomdata} />}
             {page==="tokens"&&<div></div>}
         </div>
     </YMaps>
@@ -180,7 +190,9 @@ export function MapView(props) {
         <p className="text-2xl text-center mb-2">Карта дронов</p>
         <YMap defaultState={{ center: [55.75, 37.57], zoom: 9 }} width="100%" height="75vh" >
             <GeolocationControl options={{ float: "left" }} />
-            <Placemark geometry={[55.684758, 37.738521]} />
+            {props.dots?.map((d)=>{
+                return <Placemark key={d.key} geometry={[parseFloat(d.longitude)||0, parseFloat(d.latitude)||0]} />
+            })}
         </YMap>
     </div>
 }

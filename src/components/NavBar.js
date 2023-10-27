@@ -8,7 +8,7 @@ const rubik2 = Rubik({ subsets: ['latin'], weight: ['400'] })
 export default function NavBar() {
     const router = useRouter()
 
-    return <div className="top-0 sticky h-16 bg-slate-600 bg-opacity-20 glass flex justify-center items-center px-4">
+    return <div className="z-50 top-0 sticky h-16 bg-slate-600 bg-opacity-20 glass flex justify-center items-center px-4">
         <Link href="/" className="flex items-center absolute left-0 ml-4">
             <img src="/img/drone_logo.png" className="h-8" />
             <span className={`text-2xl ml-1 ${rubik.className}`}><span className={rubik2.className}>Drone</span>Post</span>

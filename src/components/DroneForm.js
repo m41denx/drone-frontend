@@ -178,6 +178,5 @@ export default function DroneForm(props) {
             </Button>
         </Form.Item>
     </Form>
-        <Toaster />
     </>
 }
