@@ -1,10 +1,49 @@
 import {Button, Form, Input, Space} from "antd";
+import {Toast} from "next/dist/client/components/react-dev-overlay/internal/components/Toast";
+import {toast, Toaster} from "react-hot-toast";
+import {mutate} from "swr";
+
+
+const saveDrone = async (jwt, d) => {
+    let res = await fetch("http://91.107.125.237:8001/drone/create", {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json",
+            "Authorization": `Bearer ${jwt}`,
+        },
+        body: JSON.stringify({...d, dimensions: [0,0,0], longitude: 0, latitude: 0}),
+    })
+    if (res.status!==200 && res.status!==201) {
+        toast.error("Ошибка")
+        return
+    }
+    toast.success("Успешно")
+    await mutate("/drones")
+}
+
+const updateDrone = async (jwt, d) => {
+    let res = await fetch("http://91.107.125.237:8001/drone/change", {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json",
+            "Authorization": `Bearer ${jwt}`,
+        },
+        body: JSON.stringify({...d, dimensions: [0,0,0], longitude: 0, latitude: 0}),
+    })
+    if (res.status!==200 && res.status!==201) {
+        toast.error("Ошибка")
+        return
+    }
+    toast.success("Успешно")
+    await mutate("/drones")
+}
+
 
 
 export default function DroneForm(props) {
 
     console.log(props.data)
-    return <Form
+    return <><Form
         labelCol={{
             span: 8,
         }}
@@ -12,7 +51,34 @@ export default function DroneForm(props) {
         initialValues={{
             remember: true,
         }}
-        onFinish={(d)=>{props.setData(d)}}
+        onFinish={async (d)=>{
+            if (props.data.serial_number) {
+                await updateDrone(props.jwt, {
+                    serial_number: d.serial_number,
+                    max_weight: parseFloat(d.max_weight),
+                    max_distance: parseInt(d.max_distance),
+                    product_dimensions: [
+                        parseInt(d.max_size_x),
+                        parseInt(d.max_size_y),
+                        parseInt(d.max_size_z),
+                    ]
+                })
+            }else{
+                await saveDrone(props.jwt, {
+                    serial_number: d.serial_number,
+                    max_weight: parseFloat(d.max_weight),
+                    max_distance: parseInt(d.max_distance),
+                    product_dimensions: [
+                        parseInt(d.max_size_x),
+                        parseInt(d.max_size_y),
+                        parseInt(d.max_size_z),
+                    ],
+                    longitude: 0,
+                    latitude: 0,
+                    dimensions: [0,0,0],
+                })
+            }
+        }}
         // onFinishFailed={(d)=>{console.log(d.values)}}
         autoComplete="off">
         <Form.Item
@@ -106,14 +172,12 @@ export default function DroneForm(props) {
         </Form.Item>
 
 
-        <Form.Item
-            wrapperCol={{
-                // offset: 8,
-                // span: 16,
-            }}>
+        <Form.Item>
             <Button className="bg-blue-600 w-full " type="primary" htmlType="submit">
-                Submit
+                Сохранить
             </Button>
         </Form.Item>
     </Form>
+        <Toaster />
+    </>
 }

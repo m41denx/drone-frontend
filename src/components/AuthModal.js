@@ -25,6 +25,9 @@ export default function AuthModal(props) {
             onFinish={async (d)=>{
                 const data = await fetch('http://91.107.125.237:8000/admin/login', {
                     method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
                     body: JSON.stringify({
                         login: d.login,
                         password: d.password
@@ -37,8 +40,10 @@ export default function AuthModal(props) {
                 }
                 if (data.status!==200) {
                     toast.error("Неверный логин или пароль")
+                    return
                 }
                 let udata = await data.json()
+                console.log(udata)
                 props.setCookie('jwt', udata.token, {path: "/"})
                 toast.success("Вход успешен")
                 await router.push(props.url)
@@ -48,7 +53,7 @@ export default function AuthModal(props) {
         >
             <Form.Item
                 label="Логин"
-                name="username"
+                name="login"
                 rules={[
                     {
                         required: true,

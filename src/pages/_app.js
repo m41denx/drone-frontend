@@ -42,7 +42,7 @@ export default function App({ Component, pageProps }) {
       }}>
       {Component.auth?(
           isAuth?(
-              <Component {...pageProps} />
+              <Component {...pageProps} jwt={cookies.jwt} />
           ): (
               <AuthModal setCookie={setCookie} url={router.pathname} />
           )
