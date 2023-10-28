@@ -26,7 +26,7 @@ export default function App({ Component, pageProps }) {
                   headerBg: "rgba(0,0,0,0)",
                   footerBg: "rgba(0,0,0,0)",
                   colorBgContainer: "rgba(0,0,0,0)",
-                  fontSize: 16,
+                  fontSize: 14,
                   selectionColumnWidth: 48
               },
               Tag: {

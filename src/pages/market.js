@@ -165,11 +165,11 @@ export default function MarketPage(props) {
     return <>
         <NavBar />
         <Toaster />
-        <div className="m-8">
+        <div className="my-8 mx-4 lg:mx-8">
             <Table rowSelection={{
                 type: "checkbox",
                 ...rowSelection,
-            }} pagination={false} columns={columns} dataSource={pomdata} className="w-full bg-slate-600 glassb bg-opacity-20 rounded-2xl"  />
+            }} pagination={false} columns={columns} dataSource={pomdata} className="overflow-y-scroll w-full bg-slate-600 glassb bg-opacity-20 rounded-2xl"  />
         </div>
         <Modal title={<span className="text-xl">
             {isModalOpen==="edit"&&"Создать заказ"}

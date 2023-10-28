@@ -168,13 +168,13 @@ export default function AdminPage(props) {
     return <YMaps>
         <NavBar />
         <Toaster />
-        <div className="flex m-8 gap-8">
+        <div className="flex flex-col lg:flex-row my-8 mx-4 lg:mx-8 gap-8">
             <AdminNav page={page} setPage={setPage} />
             {page==="drones"&&<>
                 <Table rowSelection={{
                     type: "checkbox",
                     ...rowSelection,
-                }} pagination={false} columns={columns} dataSource={pomdata} className="w-full bg-slate-600 glassb bg-opacity-20 rounded-2xl"  />
+                }} pagination={false} columns={columns} dataSource={pomdata} className="overflow-y-scroll w-full bg-slate-600 glassb bg-opacity-20 rounded-2xl"  />
                 <Modal title={<span className="text-xl">
                     {isModalOpen==="edit"&&"Данные дрона"}
                     {isModalOpen==="del"&&"Точно удалить?"}
@@ -217,7 +217,7 @@ export function TokensView(props) {
     const [isModalOpen, setIsModalOpen] = useState("none")
 
     return <div className="w-full bg-slate-600 glassb bg-opacity-20 rounded-2xl p-4">
-        <p className="text-lg overflow-ellipsis whitespace-nowrap overflow-hidden max-w-4xl">Текущий токен организации: <span className="px-1 bg-gray-600 rounded-sm">{props.market_jwt||"отсутствует"}</span></p>
+        <p className="text-lg overflow-ellipsis lg:whitespace-nowrap overflow-hidden max-w-4xl">Текущий токен организации: <span className="px-1 bg-gray-600 rounded-sm">{props.market_jwt||"отсутствует"}</span></p>
         <Button className="bg-blue-600 mt-2" type="primary" onClick={()=>setIsModalOpen("edit")}>Создать новый</Button>
         <Modal title={<span className="text-xl">Создать токен</span>} open={isModalOpen!=="none"}
                onCancel={()=>setIsModalOpen("none")} footer={(_, {})=>{}}>
