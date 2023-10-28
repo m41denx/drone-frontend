@@ -273,7 +273,7 @@ export default function MarketPage(props) {
                 >
                     <Select>
                         {drones.map((d)=>{
-                            return <Option value={d.serial_number}>{d.serial_number}</Option>
+                            return <Option key={d.serial_number} value={d.serial_number}>{d.serial_number}</Option>
                         })}
                     </Select>
                 </Form.Item>
