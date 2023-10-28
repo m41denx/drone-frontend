@@ -31,9 +31,49 @@ const deleteDrones = async (jwt, drones) => {
     })
 }
 
-const fetchDrones = async (jwt) => {
-    return await fetch('https://dronepost.m41den.com/api/drone/all',
-        {headers:{'Authorization': `Bearer ${jwt}`}}).then(r=>r.json())
+const fetchDrones = async (jwt, setDroneData, setIsModalOpen) => {
+    let data = await fetch('https://dronepost.m41den.com/api/drone/all',
+        {headers:{'Authorization': `Bearer ${jwt}`}}).then(r=>r.json()) || []
+
+    console.log(data)
+    let pomdata = []
+
+    for await (const d of data) {
+        let r = {
+            key: d.serial_number,
+            serial_number: d.serial_number,
+            product: {
+                max_weight: parseFloat(d.max_weight),
+                product_dimensions: d.product_dimensions.length===3 ? d.product_dimensions : [0,0,0], //xyz
+            },
+            max_distance: d.max_distance,
+            editDrone: (d) => {
+                setDroneData(d)
+                setIsModalOpen("edit")
+            },
+            state: "in base",
+            longitude: 0,
+            latitude: 0
+        }
+
+        let l = await fetch('https://dronepost.m41den.com/api/state/gets/'+d.serial_number, {
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${jwt}`
+            }
+        }).catch(()=>{
+            toast.error("Сервер не ответил")
+        })
+        if (l.status===200 || l.status===201) {
+            let ldata = await l.json()
+            r.state = ldata.state
+            r.longitude = parseFloat(ldata.longitude)
+            r.latitude = parseFloat(ldata.latitude)
+        }
+        pomdata.push(r)
+    }
+    console.log(pomdata)
+    return pomdata
 }
 
 export default function AdminPage(props) {
@@ -43,7 +83,20 @@ export default function AdminPage(props) {
 
     const [isModalOpen, setIsModalOpen] = useState("none");
 
-    const {data, isLoading, error} = useSWR("/drones", async ()=>{return await fetchDrones(props.jwt)})
+    const [droneData, setDroneData] = useState({
+        key: 0,
+        serial_number: null,
+        product: {
+            max_weight: 0,
+            product_dimensions: [0,0,0], //xyz
+        },
+        max_distance: 0,
+        state: "in base",
+        longitude: 0,
+        latitude: 0
+    })
+
+    const {data: pomdata} = useSWR("/drones", async ()=>{return await fetchDrones(props.jwt, setDroneData, setIsModalOpen)})
 
     const rowSelection = {
         onChange: (selectedRowKeys, selectedRows) => {
@@ -54,46 +107,6 @@ export default function AdminPage(props) {
             name: record.serial_number,
         }),
     };
-
-
-    const pomdata = []
-
-    data&&data.forEach((d)=>{
-        let l = {
-            key: d.serial_number,
-            serial_number: d.serial_number,
-            product: {
-                max_weight: d.max_weight,
-                product_dimensions: d.product_dimensions.length===3 ? d.product_dimensions : [0,0,0], //xyz
-            },
-            max_distance: d.max_distance,
-            editDrone: (d) => {
-                console.log(d)
-                setDroneData(d)
-                setIsModalOpen("edit")
-            }
-        }
-        fetch('https://dronepost.m41den.com/api/state/gets/'+d.serial_number, {
-            headers: {
-                'Content-Type': 'application/json',
-                'Authorization': `Bearer ${props.jwt}`
-            }
-        }).then(r=>r.json()).then(r=>{
-            l.state = r.state
-            l.longitude = parseFloat(r.longitude)
-            l.latitude = parseFloat(r.latitude)
-        }).catch(()=>{})
-        pomdata.push(l)
-    })
-
-    const [droneData, setDroneData] = useState({
-        serial_number: null,
-        product: {
-            max_weight: 0,
-            product_dimensions: [0,0,0], //xyz
-        },
-        max_distance: 0,
-    })
 
 
 

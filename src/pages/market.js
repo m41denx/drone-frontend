@@ -6,8 +6,7 @@ import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
 import {faPen, faTrash} from "@fortawesome/free-solid-svg-icons";
 import {toast, Toaster} from "react-hot-toast";
 import OrderForm from "@/components/OrderForm";
-
-
+import {Option} from "antd/lib/mentions";
 
 const deleteOrders = async (jwt, orders) => {
     orders.forEach((d)=> {
@@ -19,12 +18,14 @@ const deleteOrders = async (jwt, orders) => {
             }
         }).then(r=>{
             if (r.status!==200 && r.status!==201) {
-                toast.error(`Не удалось удалить заказ ${d.id}`)
+                toast.error(`Не удалось удалить заказ №${d.id}`)
             }else{
-                toast.success(`${d.id} удален`)
+                toast.success(`Заказ №${d.id} удален`)
 
                 mutate("/orders")
             }
+        }).catch(()=>{
+            toast.error("Сервер не ответил")
         })
     })
 }
@@ -34,13 +35,52 @@ const fetchDrones = async (jwt) => {
         {headers:{'Authorization': `Bearer ${jwt}`}}).then(r=>r.json())
 }
 
+const fetchOrders = async (jwt, setOrderData, setIsModalOpen) => {
+    let data = await fetch('https://dronepost.m41den.com/market/api/v1/orders/get_all_orders',
+        {headers:{'Authorization': `Bearer ${jwt}`}}).then(r=>r.json()) || []
+
+    let pomdata = []
+
+    for await (const d of data) {
+        let r = {
+            key: d.id,
+            id: d.id,
+            product: {
+                weight: d.weight/1000,
+                dimensions: d.dimensions.length===3 ? d.dimensions : [0,0,0], //xyz
+            },
+            state: "in base",
+            pos: [d.longitude, d.latitude],
+            launch: (d) => {
+                setOrderData(d)
+                setIsModalOpen("launch")
+            }
+        }
+
+        let l = await fetch('https://dronepost.m41den.com/api/state/get/'+d.id, {
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${jwt}`
+            }
+        }).catch(()=>{
+            toast.error("Сервер не ответил")
+        })
+        if (l.status===200 || l.status===201) {
+            let ldata = await l.json()
+            r.state = ldata.state
+        }
+        pomdata.push(r)
+    }
+    return pomdata
+}
+
 export default function MarketPage(props) {
 
 
     const [deleteList, setDeleteList] = useState([]);
     const [isModalOpen, setIsModalOpen] = useState("none");
 
-    const {data: drones} = useSWR("/drones", async ()=>{return await fetchDrones(props.jwt)})
+    const {data: drones} = useSWR("/nodrones", async ()=>{return await fetchDrones(props.jwt)})
 
     const rowSelection = {
         onChange: (selectedRowKeys, selectedRows) => {
@@ -59,75 +99,10 @@ export default function MarketPage(props) {
         },
         longitude: 0,
         latitude: 0,
+        state: "in base"
     })
 
-    const fetchOrders = async (jwt) => {
-        return await fetch('https://dronepost.m41den.com/market/api/v1/orders/get_all_orders',
-            {headers:{'Authorization': `Bearer ${jwt}`}}).then(r=>r.json()) || []
-
-        for (const d of data) {
-            console.log(d)
-            let r = {
-                key: d.id,
-                id: d.id,
-                product: {
-                    weight: d.weight/1000,
-                    dimensions: d.dimensions.length===3 ? d.dimensions : [0,0,0], //xyz
-                },
-                pos: [d.longitude, d.latitude],
-                launch: (d) => {
-                    setOrderData(d)
-                    setIsModalOpen("launch")
-                }
-            }
-            // let l = await fetch('https://dronepost.m41den.com/api/state/get/'+d.id, {
-            //     headers: {
-            //         'Content-Type': 'application/json',
-            //         'Authorization': `Bearer ${jwt}`
-            //     }
-            // }).then(r=>r.json()).catch(()=>{})
-            r.state = l.state||"in base"
-            console.log(r)
-            pomdata.push(r)
-        }
-
-        console.log(pomdata)
-        return pomdata
-    }
-
-    const {data} = useSWR("/orders", async ()=>{return await fetchOrders(props.jwt)})
-
-    const pomdata = []
-
-    data&&data.forEach((d)=>{
-        let l = {
-            key: d.id,
-            id: d.id,
-            product: {
-                weight: d.weight/1000,
-                dimensions: d.dimensions.length===3 ? d.dimensions : [0,0,0], //xyz
-            },
-            pos: [d.longitude, d.latitude],
-            launch: (d) => {
-                setOrderData(d)
-                setIsModalOpen("launch")
-            }
-        }
-        fetch('https://dronepost.m41den.com/api/state/gets/'+d.serial_number, {
-            headers: {
-                'Content-Type': 'application/json',
-                'Authorization': `Bearer ${props.jwt}`
-            }
-        }).then(r=>r.json()).then(r=>{
-            l.state = r.state
-            l.longitude = parseFloat(r.longitude)
-            l.latitude = parseFloat(r.latitude)
-        }).catch(()=>{})
-        pomdata.push(l)
-    })
-
-    console.log("POM",data)
-
+    const {data: pomdata} = useSWR("/orders", async ()=>{return await fetchOrders(props.jwt, setOrderData, setIsModalOpen)})
 
     const columns = [
         {
@@ -236,6 +211,10 @@ export default function MarketPage(props) {
                         toast.error("Сервер не ответил")
                     })
                     if(!data) {
+                        return
+                    }
+                    if (data.status===418) {
+                        toast.error("Данный дрон уже занят")
                         return
                     }
                     if (data.status!==200) {

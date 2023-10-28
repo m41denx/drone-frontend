@@ -1,5 +1,4 @@
 import {Button, Form, Input, Space} from "antd";
-import {Toast} from "next/dist/client/components/react-dev-overlay/internal/components/Toast";
 import {toast, Toaster} from "react-hot-toast";
 import {mutate} from "swr";
 
