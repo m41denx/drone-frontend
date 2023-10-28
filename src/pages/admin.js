@@ -6,7 +6,7 @@ import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
 import {faPen, faTrash} from "@fortawesome/free-solid-svg-icons";
 import DroneForm from "@/components/DroneForm";
 import {YMaps, Map as YMap, GeolocationControl, Placemark} from "@pbe/react-yandex-maps";
-import useSWR from "swr";
+import useSWR, {mutate} from "swr";
 import {toast, Toaster} from "react-hot-toast";
 
 
@@ -24,6 +24,8 @@ const deleteDrones = async (jwt, drones) => {
                 toast.error(`Не удалось удалить ${d.serial_number}`)
             }else{
                 toast.success(`${d.serial_number} удален`)
+
+                mutate("/drones")
             }
         })
     })
@@ -77,7 +79,7 @@ export default function AdminPage(props) {
                 'Authorization': `Bearer ${props.jwt}`
             }
         }).then(r=>r.json()).then(r=>{
-            l.state = r
+            l.state = r.state
             l.longitude = parseFloat(r.longitude)
             l.latitude = parseFloat(r.latitude)
         }).catch(()=>{})
@@ -177,7 +179,7 @@ export default function AdminPage(props) {
             </>}
 
             {page==="map"&&<MapView dots={pomdata} />}
-            {page==="tokens"&&<div></div>}
+            {page==="tokens"&&<TokensView jwt={props.jwt} setCookie={props.setCookie} market_jwt={props.market_jwt} />}
         </div>
     </YMaps>
 }
@@ -194,5 +196,91 @@ export function MapView(props) {
                 return <Placemark key={d.key} geometry={[parseFloat(d.longitude)||0, parseFloat(d.latitude)||0]} />
             })}
         </YMap>
+    </div>
+}
+
+export function TokensView(props) {
+
+    const [isModalOpen, setIsModalOpen] = useState("none")
+
+    return <div className="w-full bg-slate-600 glassb bg-opacity-20 rounded-2xl p-4">
+        <p className="text-lg overflow-ellipsis whitespace-nowrap overflow-hidden max-w-4xl">Текущий токен организации: <span className="px-1 bg-gray-600 rounded-sm">{props.market_jwt||"отсутствует"}</span></p>
+        <Button className="bg-blue-600 mt-2" type="primary" onClick={()=>setIsModalOpen("edit")}>Создать новый</Button>
+        <Modal title={<span className="text-xl">Создать токен</span>} open={isModalOpen!=="none"}
+               onCancel={()=>setIsModalOpen("none")} footer={(_, {})=>{}}>
+            <Form
+                name="basic"
+                labelCol={{
+                    span: 4,
+                }}
+                style={{
+                    maxWidth: 600,
+                }}
+                initialValues={{
+                    remember: true,
+                }}
+                onFinish={async (d)=>{
+                    const data = await fetch('https://dronepost.m41den.com/auth/organisation/register', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Authorization': `Bearer ${props.jwt}`
+                        },
+                        body: JSON.stringify({
+                            name: d.login,
+                            login: d.login,
+                            password: d.password
+                        })
+                    }).catch(()=>{
+                        toast.error("Сервер не ответил")
+                    })
+                    if(!data) {
+                        return
+                    }
+                    if (data.status!==200) {
+                        toast.error("Ошибка при создании пользователя")
+                        return
+                    }
+                    let udata = await data.json()
+                    props.setCookie('market_jwt', udata.token, {path: "/"})
+                    toast.success("Вход успешен")
+                }}
+                onFinishFailed={()=>{}}
+                autoComplete="off"
+            >
+                <Form.Item
+                    label="Логин"
+                    name="login"
+                    rules={[
+                        {
+                            required: true,
+                            message: 'Введите логин',
+                        },
+                    ]}
+                >
+                    <Input />
+                </Form.Item>
+
+                <Form.Item
+                    label="Пароль"
+                    name="password"
+                    rules={[
+                        {
+                            required: true,
+                            message: 'Введите пароль',
+                        },
+                    ]}>
+                    <Input.Password />
+                </Form.Item>
+
+                <Form.Item
+                    wrapperCol={{
+                    }}>
+                    <Button className="bg-blue-600 w-full" type="primary" htmlType="submit">
+                        Создать
+                    </Button>
+                </Form.Item>
+            </Form>
+        </Modal>
     </div>
 }

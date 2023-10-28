@@ -10,6 +10,7 @@ export default function App({ Component, pageProps }) {
 
     const [cookies, setCookie, delCookies] = useCookies(['jwt', 'market_jwt']);
     let isAuth = !!cookies.jwt
+    let isMarketAuth = !!cookies.market_jwt
 
 
 
@@ -40,12 +41,22 @@ export default function App({ Component, pageProps }) {
               }
           }
       }}>
-      {Component.auth?(
+      {Component.auth&&(
           isAuth?(
-              <Component {...pageProps} jwt={cookies.jwt} />
+              <Component {...pageProps} jwt={cookies.jwt} market_jwt={cookies.market_jwt} setCookie={setCookie}  />
           ): (
-              <AuthModal setCookie={setCookie} url={router.pathname} />
+              <AuthModal setCookie={setCookie} url={router.pathname} type="admin" />
           )
-      ):<Component {...pageProps} />}
+      )}
+      {Component.market_auth&&(
+          isMarketAuth?(
+              <Component {...pageProps} jwt={cookies.market_jwt} setCookie={setCookie} />
+          ):(
+              <AuthModal setCookie={setCookie} url={router.pathname} type="organisation" />
+          )
+      )}
+      {!Component.auth&&!Component.market_auth&&(
+          <Component {...pageProps} />
+      )}
   </ConfigProvider>
 }

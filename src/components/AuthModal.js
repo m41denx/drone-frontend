@@ -23,7 +23,7 @@ export default function AuthModal(props) {
                 remember: true,
             }}
             onFinish={async (d)=>{
-                const data = await fetch('https://dronepost.m41den.com/auth/admin/login', {
+                const data = await fetch(`https://dronepost.m41den.com/auth/${props.type}/login`, {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json'
@@ -43,8 +43,11 @@ export default function AuthModal(props) {
                     return
                 }
                 let udata = await data.json()
-                console.log(udata)
-                props.setCookie('jwt', udata.token, {path: "/"})
+                if(props.type==="admin") {
+                    props.setCookie('jwt', udata.token, {path: "/"})
+                }else{
+                    props.setCookie('market_jwt', udata.token, {path: "/"})
+                }
                 toast.success("Вход успешен")
                 await router.push(props.url)
             }}
