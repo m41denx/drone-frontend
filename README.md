@@ -1,40 +1,29 @@
-This is a [Next.js](https://nextjs.org/) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
+# 🚁 DronePost Frontend
 
-## Getting Started
+[![Next.js](https://img.shields.io/badge/Next.js-000000?style=for-the-badge&logo=next.js&logoColor=white)](https://nextjs.org/)
+[![Antd](https://img.shields.io/badge/Ant-Design-000000?style=for-the-badge&logo=ant-design&logoColor=white)](https://ant.design/)
+[![Yandex Maps](https://img.shields.io/badge/Yandex%20Maps-000000?style=for-the-badge&logo=google-maps&logoColor=white)](https://yandex.ru/maps/)
+[![SWR](https://img.shields.io/badge/SWR-000000?style=for-the-badge&logo=swr&logoColor=white)](https://swr.vercel.app/)
 
-First, run the development server:
+![](.github/img/screenshot1.png)
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+Фронтенд для системы доставки грузов дронами.
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## Что это и зачем нужно
 
-You can start editing the page by modifying `pages/index.js`. The page auto-updates as you edit the file.
+В рамках хакатона от Sitronics в октябре 2023 года надо было за пару дней разработать систему доставки грузов дронами.
+ТЗ было максимально размытое, а во время промежуточных отчетов приоритеты менялись в зависимости от жюри: то важен
+интерфейс, то адаптивность, то только функционал, то самым главным был бизнес-план.
 
-[API routes](https://nextjs.org/docs/api-routes/introduction) can be accessed on [http://localhost:3000/api/hello](http://localhost:3000/api/hello). This endpoint can be edited in `pages/api/hello.js`.
+Я на том ивенте взял на себя роль фронтендера и сделал максимально красиво, насколько хватило умений. Исходники от бэка
+и легендарный `pipeline.sh` оказались утеряны, хотя может у кого из команды и остались.
 
-The `pages/api` directory is mapped to `/api/*`. Files in this directory are treated as [API routes](https://nextjs.org/docs/api-routes/introduction) instead of React pages.
+Если вы хотите сделать свой сервис доставки грузов дронами, то предлагаю отказаться от данной идеи, так как в РФ
+отсутствует необходимая инфраструктура для автономных полетов, а получение разрешений и лоббирования потребуют слишком
+много времени и средств. Если вы Газпром, то скажу по-другому: "это тупо невыгодно, если использовать существующих вендоров".
 
-This project uses [`next/font`](https://nextjs.org/docs/basic-features/font-optimization) to automatically optimize and load Inter, a custom Google Font.
 
-## Learn More
+## Видео работы сервиса
 
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js/) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/deployment) for more details.
+\*Клик\*
+[![](.github/img/thumbnail.png)](.github/img/video.mp4)
