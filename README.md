@@ -26,4 +26,4 @@
 ## Видео работы сервиса
 
 \*Клик\*
-[![](.github/img/thumbnail.png)](.github/img/video.mp4)
+[![](.github/img/thumbnail.png)](https://www.youtube.com/watch?v=Wijjn9Ny-gw)
